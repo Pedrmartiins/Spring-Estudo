@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ModelAndView</title>
+  </head>
+  <body>
+    <h1
+      style="
+        color: blue;
+        font-size: 60px;
+        box-sizing: border-box;
+        background-color: rgb(184, 184, 184) 5px;
+        font-family: Arial, Helvetica, sans-serif;
+      "
+    >
+      Exemplo ModelAndView
+    </h1>
+
+    <p th:text="${professor}">aaa</p>
+    <ul>
+      <li th:each="aluno : ${alunos}" th:text="${aluno}">---</li>
+    </ul>
+
+    <p th:if="${ehVerdade}">Java é verboso</p>
+  </body>
+</html>
