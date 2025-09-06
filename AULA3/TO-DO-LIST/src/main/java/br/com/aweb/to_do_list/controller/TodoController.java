@@ -1,19 +1,24 @@
 package br.com.aweb.to_do_list.controller;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.com.aweb.to_do_list.model.Todo;
 import br.com.aweb.to_do_list.repository.TodoRepository;
 import jakarta.validation.Valid;
+
 
 @Controller
 @RequestMapping("/todo")
@@ -54,6 +59,15 @@ public class TodoController {
         return new ModelAndView("form", Map.of("todo", new Todo()));
         
     }
+
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(@PathVariable Long id) {
+        Optional<Todo> todo = todoRepository.findById(id);
+        if(todo.isPresent());
+            return new ModelAndView("form", Map.of("todo", todo.get()) );
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    
 
     @PostMapping("/create")
     public String create(@Valid Todo todo, BindingResult result){
