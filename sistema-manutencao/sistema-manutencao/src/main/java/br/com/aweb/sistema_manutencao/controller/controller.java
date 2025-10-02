@@ -1,35 +1,77 @@
 import java.util.List;
 import java.util.Optional;
 
-public class controller {
+@Controller
+@RequestMapping("/sistema-manutencao")
+public class ManutencaoController {
     
-
-    @RestController
-@RequestMapping("/solicitacoes")
-public class SolicitacaoController {
-
     @Autowired
-    private SolicitacaoService service;
-
-    @PostMapping
-    public Solicitacao criarSolicitacao(@Valid @RequestBody Solicitacao solicitacao) {
-        return service.criarSolicitacao(solicitacao);
-    }
+    ManutencaoRepository manutencaoRepository;
 
     @GetMapping
-    public List<Solicitacao> listarSolicitacoes() {
-        return service.listarSolicitacoes();
+    public ModelAndView list(){
+        return new ModelAndView("list", Map.of("manutencoes", manutencaoRepository.findAll()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Solicitacao> buscarPorId(@PathVariable Long id) {
-        Optional<Solicitacao> solicitacao = service.buscarPorId(id);
-        return solicitacao.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/nova-manutencao")
+    public ModelAndView nova(){
+        return new ModelAndView("form", Map.of("manutencao", new Manutencao()));
     }
 
-    @PutMapping("/{id}/finalizar")
-    public ResponseEntity<Solicitacao> finalizarSolicitacao(@PathVariable Long id) {
-        Solicitacao solicitacao = service.finalizarSolicitacao(id);
-        return solicitacao != null ? ResponseEntity.ok(solicitacao) : ResponseEntity.notFound().build();
+    @PostMapping("/nova-manutencao")
+    public String nova(@Valid Manutencao manutencao, BindingResult result, RedirectAttributes attributes){
+        if(result.hasErrors())
+            return "form";
+        
+        manutencaoRepository.save(manutencao);
+        
+        return "redirect:/sistema-manutencao";
+
     }
+
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(@PathVariable long id){
+        Optional<Manutencao> manutencao = manutencaoRepository.findById(id);
+        if(manutencao.isPresent() && manutencao.get().getDataFinalizado()==null)
+            return new ModelAndView("form", Map.of("manutencao", manutencao.get()));
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/edit/{id}")
+    public String edit(@Valid Manutencao manutencao, BindingResult result){
+        if(result.hasErrors())
+            return "form";
+        
+            manutencaoRepository.save(manutencao);
+            return "redirect:/sistema-manutencao";
+    }
+
+    @GetMapping("/delete/{id}")
+    public ModelAndView delete(@PathVariable Long id){
+        var manutencao =  manutencaoRepository.findById(id);
+        if(manutencao.isPresent()){
+            return new ModelAndView("delete", Map.of("manutencao", manutencao.get()));
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/delete/{id}")
+    public String delete(Manutencao manutencao){
+        manutencaoRepository.delete(manutencao);
+        return "redirect:/sistema-manutencao";
+    }
+
+    @PostMapping("/finalizar/{id}")
+    public String finalizar(@PathVariable Long id){
+        var optionalManutencao = manutencaoRepository.findById(id);
+        if (optionalManutencao.isPresent()) {
+            var manutencao = optionalManutencao.get();
+            manutencao.setDataFinalizado(LocalDate.now());
+            manutencaoRepository.save(manutencao);
+            return "redirect:/sistema-manutencao";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
 }

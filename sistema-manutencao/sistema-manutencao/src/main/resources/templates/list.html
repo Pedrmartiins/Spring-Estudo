@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema Manutenção</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* Background Color */
+      body {
+        background-color: #f4f6f9;
+        font-family: 'Arial', sans-serif;
+      }
+
+      /* Navbar Styling */
+      .navbar {
+        background-color: #007bff; /* Vibrant blue background */
+      }
+
+      .navbar-brand {
+        font-weight: bold;
+        color: #fff;
+        font-size: 1.4rem;
+      }
+
+      .navbar-nav .nav-link {
+        color: #fff;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #f8f9fa;
+        text-decoration: underline;
+      }
+
+      /* Main Content */
+      .container {
+        margin-top: 40px;
+        padding: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #007bff;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+        font-size: 1rem;
+      }
+
+      .btn-primary:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+
+      /* Table Styling */
+      table {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      table th, table td {
+        padding: 12px;
+        text-align: center;
+      }
+
+      table th {
+        background-color: #007bff;
+        color: #fff;
+      }
+
+      table tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+      }
+
+      table tbody tr:hover {
+        background-color: #f1f3f5;
+        cursor: pointer;
+      }
+
+      /* Buttons in Table */
+      .btn-sm {
+        font-size: 0.875rem;
+        padding: 6px 12px;
+      }
+
+      .btn-secondary, .btn-danger {
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-danger:hover {
+        background-color: #dc3545;
+      }
+
+      .btn-secondary:hover {
+        background-color: #6c757d;
+      }
+
+      /* No Maintenance Message */
+      p {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/sistema-manutencao}">Home</a>
+      </div>
+    </nav>
+
+    <main class="container">
+      <h1 class="mt-4 mb-5">Lista de Manutenções</h1>
+      <a th:href="@{/sistema-manutencao/nova-manutencao}" class="btn btn-sm btn-primary mb-3">Nova Manutenção</a>
+
+      <table th:unless="${#lists.isEmpty(manutencoes)}" class="table table-striped table-hover table-bordered border-secondary">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nome do Solicitante</th>
+            <th scope="col">Máquina N°</th>
+            <th scope="col">Máquina</th>
+            <th scope="col">Descrição do Problema</th>
+            <th scope="col">Criado Em</th>
+            <th scope="col">Finalizado em</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr th:each="manutencao : ${manutencoes}">
+            <th scope="row" th:text="${manutencao.id}">---</th>
+            <td th:text="${manutencao.nome}"></td>
+            <td th:text="${manutencao.numeroMaq}"></td>
+            <td th:text="${manutencao.tipoMaq}"></td>
+            <td th:text="${manutencao.descricao}"></td>
+            <td th:text="${#temporals.format(manutencao.criadoEm)}">---</td>
+            <td th:text="${#temporals.format(manutencao.dataFinalizado) ?: '-'}">---</td>
+            <td>
+              <form class="d-inline" th:action="@{/sistema-manutencao/finalizar/{id}(id=${manutencao.id})}" method="post">
+                <button type="submit" class="btn btn-sm btn-primary" th:Classappend="${manutencao.dataFinalizado} ? 'disabled' : ''">Concluir</button>
+              </form>
+              <a th:href="@{/sistema-manutencao/edit/{id}(id=${manutencao.id})}" class="btn btn-sm btn-secondary" th:Classappend="${manutencao.dataFinalizado} ? 'disabled' : ''">Editar</a>
+              <a th:href="@{/sistema-manutencao/delete/{id}(id=${manutencao.id})}" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p th:if="${#lists.isEmpty(manutencoes)}">Nenhuma Manutenção cadastrada.</p>
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

@@ -1,28 +1,35 @@
 import java.time.LocalDateTime;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class solicitacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O nome do solicitante é obrigatório")
-    private String nomeSolicitante;
 
-    @NotBlank(message = "A descrição do problema é obrigatória")
-    private String descricaoProblema;
+    @NotBlank
+    @Column(nullable = false)
+    private String nome;
 
-    private LocalDateTime dataSolicitacao;
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    private Integer numeroMaq;
 
-    private LocalDateTime dataFechamento;
+    @NotBlank
+    @Column(nullable = false)
+    private String descricao;
 
-    @Enumerated(EnumType.STRING)
-    private StatusSolicitacao status;
+    @NotBlank
+    private String tipoMaq;
 
-    public Solicitacao() {
-        this.status = StatusSolicitacao.ABERTO;
-        this.dataSolicitacao = LocalDateTime.now();
-    }
+    @Column(nullable = false)
+    private LocalDateTime criadoEm =  LocalDateTime.now();
 
+    @Column(nullable = true)
+    private LocalDate dataFinalizado;    
 }
